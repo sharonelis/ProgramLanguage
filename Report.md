@@ -1,7 +1,5 @@
 # Custom Language Interpreter Project Report
-echo "# Custom Language Interpreter Project Report" > report.md
 
-echo "
 ## Introduction
 
 This report provides an overview of the design decisions, challenges faced, and solutions implemented during the development of a custom language interpreter. The interpreter supports basic arithmetic, boolean logic, conditional expressions, function definitions and calls, lambda expressions, and recursion. The goal was to create an interpreter that could execute commands both interactively and from a program file, handling various language features effectively.
