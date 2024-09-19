@@ -1,7 +1,6 @@
-# יצירת קובץ report.md
+# Custom Language Interpreter Project Report
 echo "# Custom Language Interpreter Project Report" > report.md
 
-# הוספת תוכן למסמך report.md
 echo "
 ## Introduction
 
