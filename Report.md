@@ -129,7 +129,42 @@ def eval_FunctionDefNode(self, node, env):
 - The interpreter was designed to traverse the AST and evaluate the nodes. Different evaluation methods were defined for each node type, ensuring that the interpreter could handle various expressions and statements correctly.
 
 ### Testing and Validation
-- A comprehensive test suite was developed to validate the interpreter’s functionality. Test cases covered arithmetic operations, boolean logic, comparisons, conditionals, function definitions and calls, lambda expressions, recursion, and nested functions.
+
+A comprehensive test suite was developed to validate the interpreter’s functionality. Test cases covered arithmetic operations, boolean logic, comparisons, conditionals, function definitions and calls, lambda expressions, recursion, and nested functions.
+
+#### Example Test Suite:
+
+\`\`\`python
+import unittest
+from Interpreter import Interpreter
+from Lexer import Lexer
+from Parser import Parser
+
+class TestInterpreter(unittest.TestCase):
+
+    def test_arithmetic_operations(self):
+        code = "2 + 3 * 5"
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        ast = parser.parse()
+        interpreter = Interpreter()
+        result = interpreter.interpret(ast)
+        self.assertEqual(result, 17)
+
+    def test_lambda_expression(self):
+        code = "(lambda x: x + 1)(5)"
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        ast = parser.parse()
+        interpreter = Interpreter()
+        result = interpreter.interpret(ast)
+        self.assertEqual(result, 6)
+
+if __name__ == '__main__':
+    unittest.main()
+\`\`\`
 
 ## Conclusion
 The custom language interpreter project successfully implemented a functional programming language with a range of features. Despite challenges in error handling and understanding functions within functions and lambdas, robust solutions were developed. The interpreter can execute commands interactively and from a program file, providing meaningful error messages and supporting complex language constructs. The comprehensive test suite and example programs ensure the interpreter’s reliability and effectiveness.
