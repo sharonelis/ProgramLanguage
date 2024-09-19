@@ -167,10 +167,3 @@ if __name__ == '__main__':
 The custom language interpreter project successfully implemented a functional programming language with a range of features. Despite challenges in error handling and understanding functions within functions and lambdas, robust solutions were developed. The interpreter can execute commands interactively and from a program file, providing meaningful error messages and supporting complex language constructs. The comprehensive test suite and example programs ensure the interpreter’s reliability and effectiveness.
 " >> report.md
 
-# העלאה ל-github
-git init
-git add report.md
-git commit -m "Adding interpreter project report"
-git branch -M main
-git remote add origin <URL של הרפוזיטורי בגיט>
-git push -u origin main
