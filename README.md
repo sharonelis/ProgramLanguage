@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This guide explains how to run the custom language interpreter in both interactive mode (line-by-line execution) and full program execution mode. The interpreter can handle files with the `.lambda` suffix and print the result of each command after its execution.
+This guide explains how to run the custom language interpreter in both interactive mode and full program execution mode. The interpreter is built using the Lexer, Parser, and Interpreter classes, and supports both arithmetic expressions and lambda functions.
 
 ## Prerequisites
 
@@ -110,4 +110,4 @@ This guide explains how to run the custom language interpreter in both interacti
 
 ## Conclusion
 
-This guide covers how to run the custom language interpreter in both interactive mode and full program execution mode. By following these steps, you can execute and test your `.lambda` programs easily. If you encounter any issues, ensure that your Python installation is correctly set up and that your program files are properly formatted.
+This guide explains how to use the custom interpreter by running it in interactive mode or executing a `.lambda` program file. Be sure to follow these instructions to ensure correct execution of your language programs.
