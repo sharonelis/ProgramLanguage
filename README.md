@@ -2,12 +2,12 @@
 
 ## Introduction
 
-This guide explains how to run the custom language interpreter in both interactive mode and full program execution mode. The interpreter is built using the Lexer, Parser, and Interpreter classes, and supports both arithmetic expressions and lambda functions.
+This guide explains how to run the custom language interpreter that was implemented using the `Lexer`, `Parser`, `Interpreter`, and `REPL` classes. The interpreter is designed to execute custom `.lambda` programs in both interactive mode and program execution mode.
 
 ## Prerequisites
 
 - Ensure you have Python installed on your system.
-- Save your interpreter code in a file named `interpreter.py`.
+- Ensure all necessary files are placed in the same directory: `Lexer.py`, `Parser.py`, `Interpreter.py`, and `REPL.py`.
 - Save your language programs with the `.lambda` suffix.
 
 ## Running the Interpreter
@@ -15,40 +15,40 @@ This guide explains how to run the custom language interpreter in both interacti
 ### Interactive Mode
 
 1. Open a terminal or command prompt.
-2. Navigate to the directory containing `interpreter.py`.
-3. Run the following command:
+2. Navigate to the directory containing the interpreter files.
+3. Run the following command to start the interactive mode:
 
     ```sh
-    python interpreter.py
+    python REPL.py
     ```
 
-4. You will see the prompt `YGH>`. You can now enter commands line by line. After typing each command, press Enter to execute it and see the result.
+4. You will see the prompt `Lambda>`. You can now enter commands one by one. After typing a command, press Enter to execute it and see the result.
 
     Example:
 
     ```plaintext
-    YGH> 2 + 3
+    Lambda> 2 + 3
     5
-    YGH> def add(x, y): x + y
+    Lambda> def add(x, y): x + y
     Function created!
-    YGH> add(2, 3)
+    Lambda> add(2, 3)
     5
-    YGH> (lambda x: x + 1)(4)
+    Lambda> (lambda x: x + 1)(4)
     5
-    YGH> if True: 1 else: 0
+    Lambda> if True: 1 else: 0
     1
     ```
 
-    To exit the interactive mode, press `Ctrl+C` and press Enter.
+    To exit the interactive mode, press `Ctrl+C` or type `exit`.
 
 ### Full Program Execution Mode
 
 1. Open a terminal or command prompt.
-2. Navigate to the directory containing `interpreter.py` and your `.lambda` program file.
+2. Navigate to the directory containing the interpreter files and your `.lambda` program file.
 3. Run the following command:
 
     ```sh
-    python interpreter.py your_program.lambda
+    python REPL.py your_program.lambda
     ```
 
     Replace `your_program.lambda` with the name of your `.lambda` file.
@@ -80,7 +80,7 @@ This guide explains how to run the custom language interpreter in both interacti
     Run the following command:
 
     ```sh
-    python interpreter.py test.lambda
+    python REPL.py test.lambda
     ```
 
     You will see the interpreter execute each line and print the results:
@@ -110,4 +110,4 @@ This guide explains how to run the custom language interpreter in both interacti
 
 ## Conclusion
 
-This guide explains how to use the custom interpreter by running it in interactive mode or executing a `.lambda` program file. Be sure to follow these instructions to ensure correct execution of your language programs.
+This guide explains how to run the custom language interpreter in both interactive and program execution modes. By following these instructions, you will be able to test and run `.lambda` programs efficiently. Make sure to check that Python is installed correctly and that your program files are in the correct format.
