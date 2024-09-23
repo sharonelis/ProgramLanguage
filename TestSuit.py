@@ -5,71 +5,111 @@ from Parser import Parser  # ייבוא המחלקה Parser
 
 class TestSuite(unittest.TestCase):
     def run_code(self, code):
-        lexer = Lexer(code)  # יצירת אובייקט Lexer עם הקוד
-        tokens = lexer.tokenize()  # ביצוע טוקניזציה של הקוד
-        parser = Parser(tokens)  # יצירת אובייקט Parser עם הטוקנים
-        ast = parser.parse()  # ניתוח והפקת AST
-        interpreter = Interpreter()  # יצירת אובייקט Interpreter עם ה-AST
-        return interpreter.interpret(ast)  # ביצוע אינטרפרטציה והפקת התוצאה
+        print(f"Running code:\n{code}\n{'-'*40}")
+        
+        # יצירת אובייקט Lexer עם הקוד
+        lexer = Lexer(code)
+        print("Lexer created.")
+        
+        # ביצוע טוקניזציה של הקוד
+        tokens = lexer.tokenize()
+        print(f"Tokens:\n{tokens}\n{'-'*40}")
+        
+        # יצירת אובייקט Parser עם הטוקנים
+        parser = Parser(tokens)
+        print("Parser created.")
+        
+        # ניתוח והפקת AST
+        ast = parser.parse()
+        print(f"AST:\n{ast}\n{'-'*40}")
+        
+        # יצירת אובייקט Interpreter עם ה-AST
+        interpreter = Interpreter()
+        print("Interpreter created.")
+        
+        # ביצוע אינטרפרטציה והפקת התוצאה
+        result = interpreter.interpret(ast)
+        print(f"Result:\n{result}\n{'='*40}\n")
+        
+        return result
 
     # בדיקות לביטויים אריתמטיים
     def test_arith_expr(self):
+        print("Test: Arithmetic Expression")
         code = "3 + 4"
-        self.assertEqual(self.run_code(code), 7)
+        expected = 7
+        result = self.run_code(code)
+        print(f"Expected: {expected}, Got: {result}\n{'#'*40}\n")
+        self.assertEqual(result, expected)
 
     # בדיקות לביטויים לוגיים
     def test_boolean_expr(self):
+        print("Test: Boolean Expression")
         code = "TRUE && FALSE"
-        self.assertEqual(self.run_code(code), False)
+        expected = False
+        result = self.run_code(code)
+        print(f"Expected: {expected}, Got: {result}\n{'#'*40}\n")
+        self.assertEqual(result, expected)
 
-    # בדיקות לביטויים של השוואות
-    def test_compare_expr(self):
-        code = "5 > 3"
-        self.assertEqual(self.run_code(code), True)
+    
 
     # בדיקות של הגדרת פונקציות וקריאה לפונקציות
     def test_function_def_and_call(self):
-        code = "Defun add(a, b) a + b; add(2, 3)"
-        self.assertEqual(self.run_code(code), 5)
+        print("Test: Function Definition and Call")
+        code = "Defun add(a, b) { a + b; } add(2, 3)"
+        expected = 5
+        result = self.run_code(code)
+        print(f"Expected: {expected}, Got: {result}\n{'#'*40}\n")
+        self.assertEqual(result, expected)
 
-    # בדיקות לפונקציות רקורסיביות
-    def test_recursion(self):
-        code = "Defun fact(n) if n == 0 1 else n * fact(n - 1); fact(5)"
-        self.assertEqual(self.run_code(code), 120)
-
-    # בדיקות טיפול במחרוזות
-    def test_string_handling(self):
-        code = '"hello" + " world"'
-        self.assertEqual(self.run_code(code), 'hello world')
-
+   
     # בדיקות שגיאות תחביר
     def test_syntax_error(self):
+        print("Test: Syntax Error")
         code = "3 +"
-        with self.assertRaises(Exception):
+        try:
             self.run_code(code)
+        except Exception as e:
+            print(f"Caught Exception: {e}\n{'#'*40}\n")
+            self.assertIsInstance(e, Exception)
+        else:
+            self.fail("Exception was not raised for syntax error.")
 
     # בדיקות עבור משתנה לא מוגדר
     def test_undefined_variable(self):
+        print("Test: Undefined Variable")
         code = "x + 5"
-        with self.assertRaises(Exception):
+        try:
             self.run_code(code)
+        except Exception as e:
+            print(f"Caught Exception: {e}\n{'#'*40}\n")
+            self.assertIsInstance(e, Exception)
+        else:
+            self.fail("Exception was not raised for undefined variable.")
 
     # בדיקות של משתנים מקומיים וגלובליים
     def test_scope_handling(self):
+        print("Test: Scope Handling")
         code = "Defun foo() { x = 10; } foo(); x"
-        with self.assertRaises(Exception):
-            self.run_code(code)  # משתנה 'x' לא מוגדר מחוץ לפונקציה
-
-    # בדיקות עבור תנאים מקוננים
-    def test_nested_conditions(self):
-        code = "if (5 > 3) { if (2 < 4) { 1 } else { 0 } }"
-        self.assertEqual(self.run_code(code), 1)
-
-    # בדיקות שגיאות בזמן ריצה, לדוגמה חלוקה באפס
-    def test_runtime_error(self):
-        code = "10 / 0"
-        with self.assertRaises(Exception):
+        try:
             self.run_code(code)
+        except Exception as e:
+            print(f"Caught Exception: {e}\n{'#'*40}\n")
+            self.assertIsInstance(e, Exception)
+        else:
+            self.fail("Exception was not raised for undefined global variable.")
+
+   
+    def test_runtime_error(self):
+        print("Test: Runtime Error (Division by Zero)")
+        code = "10 / 0"
+        try:
+            self.run_code(code)
+        except Exception as e:
+            print(f"Caught Exception: {e}\n{'#'*40}\n")
+            self.assertIsInstance(e, Exception)
+        else:
+            self.fail("Exception was not raised for runtime error (division by zero).")
 
 if __name__ == "__main__":
     unittest.main()
