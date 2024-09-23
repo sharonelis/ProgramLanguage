@@ -19,6 +19,13 @@ class TestParser:
         self.test_defun_call()
         self.test_more_arith_expr()
         self.test_if_with_block()
+        self.test_lambda()
+        self.test_and_token()
+        self.test_minus_token()
+        self.test_nested_minus_expression()
+        self.test_if_statement_with_block()
+        self.test_missing_closing_brace()
+        self.test_extra_closing_brace()
 
         print(f"Tests passed: {self.tests_passed}")
         print(f"Tests failed: {self.tests_failed}")
@@ -49,6 +56,7 @@ class TestParser:
         parser = Parser(tokens)
         parsed = parser.parse()
         expected = [('PLUS', 3, ('MULTIPLY', 5, ('MINUS', 2, 1)))]
+        print(f"Generated AST for arithmetic expression: {parsed}")
         self.assert_equal(parsed, expected, "Arithmetic expression parsing failed")
 
     def test_boolean_expr(self):
@@ -58,18 +66,33 @@ class TestParser:
         parser = Parser(tokens)
         parsed = parser.parse()
         expected = [('OR', ('AND', True, False), True)]
+        print(f"Generated AST for boolean expression: {parsed}")
         self.assert_equal(parsed, expected, "Boolean expression parsing failed")
 
     def test_if_statement(self):
-        code = "if (x > 1) then y = 2; else y = 3;"
+        code = "if (x > 1) { y = 2; } else { y = 3; }"
         lexer = Lexer(code)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
         parsed = parser.parse()
         expected = [
-            ('IF', ('GREATER', 'x', 1), ('ASSIGN', 'y', 2), ('ASSIGN', 'y', 3))
+            ('IF', ('GREATER', 'x', 1), [('ASSIGN', 'y', 2)], [('ASSIGN', 'y', 3)])
         ]
         self.assert_equal(parsed, expected, "If statement parsing failed")
+
+    def test_if_statement_with_block(self):
+        code = "if (x > 1) { y = y + 2; z = z - 1; } else { w = w + 5; }"
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        parsed = parser.parse()
+        expected = [
+            ('IF', ('GREATER', 'x', 1), 
+                [('ASSIGN', 'y', ('PLUS', 'y', 2)), ('ASSIGN', 'z', ('MINUS', 'z', 1))],
+                [('ASSIGN', 'w', ('PLUS', 'w', 5))])
+        ]
+        print(f"Generated AST for if statement with block: {parsed}")
+        self.assert_equal(parsed, expected, "If statement with block parsing failed")
 
     def test_function_call(self):
         code = "factorial(5);"
@@ -84,15 +107,13 @@ class TestParser:
         code = "Defun factorial (n) { n & factorial(n - 1); }"  # '&' is not expected
         lexer = Lexer(code)
         try:
-            tokens = lexer.tokenize()  # זה אמור להיכשל עם LexerError
+            tokens = lexer.tokenize()
             print("Test failed: No error was raised for unexpected token '&'")
             self.assert_equal(False, True, "Unexpected token did not raise an error")
         except LexerError as e:
-            print(f"Error caught as expected: {e}")  # הדפסת השגיאה שנתפסה
-            # הבדיקה תעבור אם שגיאה אכן הורמה
+            print(f"Error caught as expected: {e}")
             self.assert_equal(str(e), "Unexpected character: &", "Unexpected token test passed")
 
-        # בדיקות חדשות שהוספתי ממחלקת הבדיקות של האדם האחר:
     def test_more_arith_expr(self):
         code = "(5 + 3) * 2"
         lexer = Lexer(code)
@@ -108,40 +129,35 @@ class TestParser:
         tokens = lexer.tokenize()
         parser = Parser(tokens)
         parsed = parser.parse()
-        
-        # עדכון הציפייה כדי להתאים לפלט המתקבל
         expected = [('DEFUN', 'add', ['a', 'b'], ('PLUS', 'a', 'b'))]
-        
         self.assert_equal(parsed, expected, "Defun call parsing failed")
 
     def test_complex_if_statement(self):
-        code = "if (x >= 10) then x = 100 else x = 0"
+        code = "if (x >= 10) { x = 100; } else { x = 0; }"
         lexer = Lexer(code)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
         parsed = parser.parse()
-        expected = [('IF', ('GREATER_EQUAL', 'x', 10), ('ASSIGN', 'x', 100), ('ASSIGN', 'x', 0))]
+        expected = [('IF', ('GREATER_EQUAL', 'x', 10), [('ASSIGN', 'x', 100)], [('ASSIGN', 'x', 0)])]
         self.assert_equal(parsed, expected, "Complex if statement parsing failed")
 
     def test_complex_logical_if_statement(self):
-        code = "if (x < y && y > z) then max = y else max = z"
+        code = "if (x < y && y > z) { max = y; } else { max = z; }"
         lexer = Lexer(code)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
         parsed = parser.parse()
-        
         expected = [
             ('IF', 
-            ('AND', ('LESS', 'x', 'y'), ('GREATER', 'y', 'z')), 
-            ('ASSIGN', 'max', 'y'), 
-            ('ASSIGN', 'max', 'z'))
+             ('AND', ('LESS', 'x', 'y'), ('GREATER', 'y', 'z')), 
+             [('ASSIGN', 'max', 'y')], 
+             [('ASSIGN', 'max', 'z')])
         ]
-        
         self.assert_equal(parsed, expected, "Complex logical if statement parsing failed")
 
     def test_if_with_block(self):
         code = """
-        if (x > 5) then {
+        if (x > 5) {
             y = y * 2;
             z = z + 1;
         } else {
@@ -152,15 +168,13 @@ class TestParser:
         tokens = lexer.tokenize()
         parser = Parser(tokens)
         parsed = parser.parse()
-
         expected = [
             ('IF', 
                 ('GREATER', 'x', 5), 
-                [('ASSIGN', 'y', ('MULTIPLY', 'y', 2)), ('ASSIGN', 'z', ('PLUS', 'z', 1))],  # Then branch as a block of statements
-                [('ASSIGN', 'y', ('MINUS', 'y', 1))]  # Else branch as a block of statements
+                [('ASSIGN', 'y', ('MULTIPLY', 'y', 2)), ('ASSIGN', 'z', ('PLUS', 'z', 1))], 
+                [('ASSIGN', 'y', ('MINUS', 'y', 1))]
             )
         ]
-        
         self.assert_equal(parsed, expected, "If statement with block parsing failed")
 
     def test_string_operations(self):
@@ -173,6 +187,69 @@ class TestParser:
             self.assert_equal(False, True, "String operations did not raise an error")
         except ParserError:
             self.assert_equal(True, True, "String operations test passed")
+
+    def test_lambda(self):
+        code = "Lambda (a, b) a + b;"
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        parsed = parser.parse()
+        expected = [
+            ('LAMBDA', ['a', 'b'], ('PLUS', 'a', 'b'))
+        ]
+        self.assert_equal(parsed, expected, "Lambda parsing failed")
+
+    def test_and_token(self):
+        code = "x && y"
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        parsed = parser.parse()
+        expected = [('AND', 'x', 'y')]
+        print(f"Generated AST for AND expression: {parsed}")
+        self.assert_equal(parsed, expected, "AND token parsing failed")
+
+    def test_minus_token(self):
+        code = "a - b"
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        parsed = parser.parse()
+        expected = [('MINUS', 'a', 'b')]
+        print(f"Generated AST for MINUS expression: {parsed}")
+        self.assert_equal(parsed, expected, "MINUS token parsing failed")
+
+    def test_nested_minus_expression(self):
+        code = "a - (b - c)"
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        parsed = parser.parse()
+        expected = [('MINUS', 'a', ('MINUS', 'b', 'c'))]
+        print(f"Generated AST for nested MINUS expression: {parsed}")
+        self.assert_equal(parsed, expected, "Nested MINUS expression parsing failed")
+
+    def test_missing_closing_brace(self):
+        code = "if (x > 5) { y = y + 1; z = z - 1;"  # Missing closing brace
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        try:
+            parser.parse()
+            self.assert_equal(False, True, "Missing closing brace should raise an error")
+        except ParserError as e:
+            self.assert_equal(str(e), "Expected '}' but reached end of input", "Missing closing brace error handling failed")
+
+    def test_extra_closing_brace(self):
+        code = "if (x > 5) { y = y + 1; } }"  # Extra closing brace
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        try:
+            parser.parse()
+            self.assert_equal(False, True, "Extra closing brace should raise an error")
+        except ParserError as e:
+            self.assert_equal(str(e), "Unexpected token: <Token type='RBRACE', value=}>", "Extra closing brace error handling failed")
 
 # הפעלת הבדיקות
 if __name__ == "__main__":
