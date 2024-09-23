@@ -16,6 +16,10 @@ class REPL:
                     print("Exiting REPL...")
                     break
 
+                if not self.check_braces(code):
+                    print("Error: Mismatched braces, check your input.")
+                    continue
+
                 lexer = Lexer(code)  # יצירת אובייקט Lexer עם הקוד שהוזן
                 tokens = lexer.tokenize()  # ביצוע טוקניזציה של הקוד
                 
@@ -29,6 +33,18 @@ class REPL:
             except Exception as e:
                 print(f"Error: {e}")
 
+    def check_braces(self, code):
+        """פונקציה לבדיקה האם סוגריים מסולסלים נסגרו כראוי"""
+        open_braces = 0
+        for char in code:
+            if char == '{':
+                open_braces += 1
+            elif char == '}':
+                open_braces -= 1
+
+        return open_braces == 0
+
 if __name__ == "__main__":
     repl = REPL()
     repl.run()
+
