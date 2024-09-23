@@ -25,7 +25,6 @@ class TestLexer:
         self.tests_failed = 0
     
     def run(self):
-       
         self.test_basic_tokenization()
         self.test_arithmetic_operations()
         self.test_boolean_operations()
@@ -34,13 +33,11 @@ class TestLexer:
         self.test_unknown_character()
         self.test_unterminated_string()
         self.test_invalid_character()
-        self.assert_equal(True, True, "Test")
+        self.test_unexpected_token()
+        self.test_minus_token()  # פונקציה חדשה לבדוק את המינוס
 
         print(f"Tests passed: {self.tests_passed}")
         print(f"Tests failed: {self.tests_failed}")
-
-        #self.parse_function_def()
-
 
     def assert_equal(self, value, expected, message):
         if value == expected:
@@ -118,17 +115,6 @@ class TestLexer:
         except LexerError:
             self.assert_equal(True, True, "Unterminated string test passed")
 
-    def parse_function_def (self):
-        code = "Defun factorial (n) { return n; }"
-        lexer = Lexer(code)
-        tokens = lexer.tokenize()
-        parser = Parser(tokens)
-        parsed = parser.parse()
-        expected = [
-            ('DEFUN', 'factorial', ['n'], ('RETURN', 'n'))
-        ]
-        self.assert_equal(parsed, expected, "Basic function definition parsing failed")
-
     def test_invalid_character(self):
        code = "Defun factorial (n) { n * factorial(n - 1); }"
        lexer = Lexer(code)
@@ -144,8 +130,16 @@ class TestLexer:
         except LexerError as e:
             # הבדיקה תעבור אם שגיאה אכן הורמה
             self.assert_equal(str(e), "Unexpected character: &", "Unexpected token test passed")
+
+    def test_minus_token(self):  # פונקציה חדשה לבדוק מינוס
+        code = "10 - 5"
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        expected = [
+            ('INTEGER', 10), ('MINUS', '-'), ('INTEGER', 5)
+        ]
+        self.assert_equal([(t.type, t.value) for t in tokens], expected, "Minus token parsing failed")
     
 if __name__ == "__main__":
     test_lexer = TestLexer()
     test_lexer.run()
-
