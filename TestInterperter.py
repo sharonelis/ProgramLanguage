@@ -1,4 +1,6 @@
 from Interpreter import Interpreter, InterpreterError
+from Lexer import Lexer
+from Parser import Parser
 
 class TestInterpreter:
     def __init__(self):
@@ -16,6 +18,9 @@ class TestInterpreter:
         print("Running test_if_statements")
         self.test_if_statements()
 
+        print("Running test_if_statement_with_block")  # בדיקה לטיפול בסוגריים מסולסלים במשפט if
+        self.test_if_statement_with_block()
+
         print("Running test_function_def_and_call")
         self.test_function_def_and_call()
 
@@ -28,6 +33,18 @@ class TestInterpreter:
         print("Running test_complex_boolean_logic")
         self.test_complex_boolean_logic()
 
+        print("Running test_lambda_execution")
+        self.test_lambda_execution()
+
+        print("Running test_lambda_file_execution")
+        self.test_lambda_file_execution()
+
+        print("Running test_minus_operation")
+        self.test_minus_operation()
+
+        print("Running test_block_statements")  # בדיקה לטיפול בסוגריים מסולסלים
+        self.test_block_statements()
+
         self.print_results()
 
     def assert_equal(self, actual, expected, message):
@@ -37,6 +54,40 @@ class TestInterpreter:
             self.tests_failed += 1
             print(f"Test failed: {message}")
             print(f"Expected: {expected}, Got: {actual}")
+
+    def test_if_statement_with_block(self):
+        
+        ast = [
+            ('ASSIGN', 'x', 5),
+            ('IF', ('GREATER', 'x', 3),
+                [
+                    ('ASSIGN', 'y', ('PLUS', 'x', 2)),
+                    ('ASSIGN', 'z', ('MINUS', 'y', 1))
+                ],
+                [
+                    ('ASSIGN', 'y', 0),
+                    ('ASSIGN', 'z', 0)
+                ])
+        ]
+        self.interpreter.interpret(ast)
+        self.assert_equal(self.interpreter.variables['y'], 7, "If statement with block (true branch) failed")
+        self.assert_equal(self.interpreter.variables['z'], 6, "If statement with block (true branch) failed")
+
+        ast = [
+            ('ASSIGN', 'x', 2),
+            ('IF', ('GREATER', 'x', 3),
+                [
+                    ('ASSIGN', 'y', ('PLUS', 'x', 2)),
+                    ('ASSIGN', 'z', ('MINUS', 'y', 1))
+                ],
+                [
+                    ('ASSIGN', 'y', 0),
+                    ('ASSIGN', 'z', 0)
+                ])
+        ]
+        self.interpreter.interpret(ast)
+        self.assert_equal(self.interpreter.variables['y'], 0, "If statement with block (false branch) failed")
+        self.assert_equal(self.interpreter.variables['z'], 0, "If statement with block (false branch) failed")
 
     def test_simple_assignment(self):
         ast = [('ASSIGN', 'x', 10)]
@@ -62,57 +113,110 @@ class TestInterpreter:
         self.assert_equal(self.interpreter.variables['y'], 0, "If statement (false branch) failed")
 
     def test_function_def_and_call(self):
-        self.interpreter.variables = {}  # איפוס משתנים לפני הבדיקה
+        self.interpreter.variables = {}
 
-        # Function definition: def add(a, b) { a + b }
         ast = [('DEFUN', 'add', ['a', 'b'], ('PLUS', 'a', 'b'))]
         self.interpreter.interpret(ast)
         assert 'add' in self.interpreter.functions, "Function definition failed"
 
-        # Function call: add(3, 4)
         ast = [('CALL', 'add', [3, 4])]
         result = self.interpreter.interpret(ast)
         self.assert_equal(result, 7, "Function call failed")
 
     def test_division_by_zero(self):
-     print("Running test: test_division_by_zero")
-     ast = [('ASSIGN', 'x', ('DIVIDE', 10, 0))]
-     try:
-        self.interpreter.interpret(ast)
-        print("No error raised for division by zero")  # אם השגיאה לא מתרחשת
-        self.assert_equal(False, True, "Division by zero should raise an error")
-     except InterpreterError as e:
-        print(f"Error raised: {str(e)}")  # הדפסת תוכן השגיאה
-        self.assert_equal(str(e), "Division by zero", "Division by zero error handling failed")
-
+        ast = [('ASSIGN', 'x', ('DIVIDE', 10, 0))]
+        try:
+            self.interpreter.interpret(ast)
+            print("No error raised for division by zero")
+            self.assert_equal(False, True, "Division by zero should raise an error")
+        except InterpreterError as e:
+            print(f"Error raised: {str(e)}")
+            self.assert_equal(str(e), "Division by zero", "Division by zero error handling failed")
 
     def test_nested_function_calls(self):
-        # הגדרת פונקציה שמקוננת קריאה לפונקציה אחרת
         ast = [
             ('DEFUN', 'add', ['a', 'b'], ('PLUS', 'a', 'b')),
             ('DEFUN', 'double_add', ['x', 'y'], ('CALL', 'add', [('CALL', 'add', ['x', 'y']), 'x']))
         ]
         self.interpreter.interpret(ast)
 
-        # קריאה לפונקציה מקוננת
         ast = [('CALL', 'double_add', [2, 3])]
         result = self.interpreter.interpret(ast)
         self.assert_equal(result, 7, "Nested function call failed")
 
     def test_complex_boolean_logic(self):
-     print("Running test_complex_boolean_logic")
-     ast = [('ASSIGN', 'x', ('AND', True, ('OR', False, True)))]
-     self.interpreter.interpret(ast)
-    
-    # הדפסת ערך 'x' שנקבע לפי הלוגיקה הבוליאנית
-     print(f"Value of 'x' after complex boolean logic: {self.interpreter.variables['x']}")
-    
-     self.assert_equal(self.interpreter.variables['x'], True, "Complex boolean logic failed")
 
+        result = self.interpreter.interpret([('AND', True, False)])
+        assert result == False, f"Expected False, got {result}"
+
+        result = self.interpreter.interpret([('OR', True, False)])
+        assert result == True, f"Expected True, got {result}"
+
+        result = self.interpreter.interpret([('AND', ('GREATER', 5, 3), ('EQUAL', 4, 4))])
+        assert result == True, f"Expected True, got {result}"
+
+        result = self.interpreter.interpret([('OR', ('LESS', 5, 3), ('NOT_EQUAL', 2, 1))])
+        assert result == True, f"Expected True, got {result}"
+
+        result = self.interpreter.interpret([('OR', ('AND', ('GREATER', 5, 3), ('EQUAL', 4, 4)), ('NOT_EQUAL', 2, 1))])
+        assert result == True, f"Expected True, got {result}"
+
+        result = self.interpreter.interpret([('AND', ('OR', True, False), False)])
+        assert result == False, f"Expected False, got {result}"
+
+        print("test_complex_boolean_logic passed")
+
+    def test_lambda_execution(self):
+        code = "Lambda (a, b) a + b;"
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        ast = parser.parse()
+
+        print(f"Generated AST for lambda: {ast}")
+
+        lambda_func = self.interpreter.interpret(ast)
+        result = lambda_func(3, 4)
+        self.assert_equal(result, 7, "Lambda execution failed")
+
+    def test_lambda_file_execution(self):
+        try:
+            file_path = "test.lambda"
+            ast = self.interpreter.interpret_from_file(file_path)
+            print(f"Generated AST for file: {ast}")
+            print("Lambda file execution succeeded.")
+        except Exception as e:
+            print(f"Error occurred while executing lambda file: {str(e)}")
+            self.assert_equal(False, True, "Lambda file execution failed")
+
+    def test_minus_operation(self):
+
+        ast = [('ASSIGN', 'z', ('MINUS', 10, 3))]
+        self.interpreter.interpret(ast)
+        self.assert_equal(self.interpreter.variables['z'], 7, "Minus operation failed")
+
+    def test_block_statements(self):
+
+        ast = [
+            ('ASSIGN', 'x', 5),
+            ('IF', ('GREATER', 'x', 3),  # תנאי בודק אם x גדול מ-3
+                [
+                    ('ASSIGN', 'y', ('PLUS', 'x', 2)),
+                    ('ASSIGN', 'z', ('MINUS', 'y', 1))
+                ],
+                [
+                    ('ASSIGN', 'y', 0),
+                    ('ASSIGN', 'z', 0)
+                ])
+        ]
+        self.interpreter.interpret(ast)
+        self.assert_equal(self.interpreter.variables['y'], 7, "Block statement (true branch) failed")
+        self.assert_equal(self.interpreter.variables['z'], 6, "Block statement (true branch) failed")
 
     def print_results(self):
         print(f"Tests passed: {self.tests_passed}")
         print(f"Tests failed: {self.tests_failed}")
+
 
 if __name__ == "__main__":
     test_interpreter = TestInterpreter()
