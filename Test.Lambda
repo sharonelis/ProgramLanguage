@@ -1,0 +1,32 @@
+# פונקציות הגדרה
+Defun add(a, b) { return a + b; }
+Defun multiply(a, b) { return a * b; }
+Defun subtract(a, b) { return a - b; }
+Defun divide(a, b) { if (b != 0) { return a / b; } else { return "Cannot divide by zero"; } }
+Defun factorial(n) { if (n <= 1) { return 1; } else { return n * factorial(n - 1); } }
+
+# בדיקות פונקציות אריתמטיות
+add(3, 4);  # צריך להחזיר 7
+multiply(5, 2);  # צריך להחזיר 10
+subtract(10, 4);  # צריך להחזיר 6
+divide(12, 3);  # צריך להחזיר 4
+divide(5, 0);  # צריך להחזיר "Cannot divide by zero"
+factorial(5);  # צריך להחזיר 120
+
+# פונקציות בוליאניות והשוואות
+Defun is_greater(a, b) { return a > b; }
+is_greater(10, 5);  # צריך להחזיר TRUE
+is_greater(3, 7);  # צריך להחזיר FALSE
+
+Defun is_equal(a, b) { return a == b; }
+is_equal(5, 5);  # צריך להחזיר TRUE
+is_equal(4, 9);  # צריך להחזיר FALSE
+
+Defun logical_and(a, b) { return a && b; }
+logical_and(TRUE, FALSE);  # צריך להחזיר FALSE
+logical_and(TRUE, TRUE);  # צריך להחזיר TRUE
+
+# שימוש בפונקציה למבדה
+Defun apply_lambda(f, x, y) { return f(x, y); }
+apply_lambda(Lambda (a, b) { return a + b; }, 7, 8);  # צריך להחזיר 15
+apply_lambda(Lambda (a, b) { return a * b; }, 2, 5);  # צריך להחזיר 10
