@@ -27,7 +27,7 @@
 
 <function_call> ::= <identifier> "(" <expression> ("," <expression>)* ")"
 
-<if_statement> ::= "if" "(" <compare_expr> ")" "then" <statement> "else" <statement>
+<if_statement> ::= "if" "(" <compare_expr> ")" "{" <statement> "}" ["else" "{" <statement> "}"]
 
 <boolean_value> ::= "TRUE" | "FALSE"
 
