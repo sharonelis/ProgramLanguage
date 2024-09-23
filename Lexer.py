@@ -39,6 +39,8 @@ class Lexer:
         while self.current_char is not None:
             if self.current_char.isspace():
                 self.advance()
+            elif self.current_char == '#':
+                self.skip_comment()  # התעלמות משורה של הערה
             elif self.current_char.isdigit():
                 tokens.append(self.make_integer())
             elif self.current_char.isalpha():
@@ -118,12 +120,21 @@ class Lexer:
             elif self.current_char == '=':
                 tokens.append(Token('ASSIGN', '=', self.pos))
                 self.advance()
+            elif self.current_char == ':':  # הוספת טיפול בתו ':'
+                tokens.append(Token('COLON', ':', self.pos))
+                self.advance()
             elif self.current_char == '"':
                 tokens.append(self.make_string())
             else:
                 raise LexerError(f"Unknown character: {self.current_char}", self.pos)
         
         return tokens
+    
+    def skip_comment(self):
+        """ מתעלם מהערות שמתחילות ב-# """
+        while self.current_char is not None and self.current_char != '\n':
+            self.advance()
+        self.advance()  # קידום מעבר לסוף השורה
 
     def peek(self):
         peek_pos = self.pos + 1
