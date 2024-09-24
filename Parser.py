@@ -150,21 +150,30 @@ class Parser:
 
      if not self.match('RPAREN'):
         raise ParserError("Expected ')' after condition")
-    
+
      print(f"After matching ')', current token: {self.current_token}")
 
     # תיקון: ביטול הבדיקה על THEN
      print("Parsing then_branch")
      then_branch = self.parse_block_or_expression()
-    
+
      print(f"Parsed then_branch: {then_branch}")
+
+     if isinstance(then_branch, list) and 'return' in then_branch:
+        # אם יש שימוש ב-return, נתעלם מהמילה ונחזיר את הביטוי הסופי
+        then_branch = [exp for exp in then_branch if exp != 'return']
 
      if self.match('ELSE'):
         print("Found 'ELSE', parsing else_branch")
         else_branch = self.parse_block_or_expression()
+
+        if isinstance(else_branch, list) and 'return' in else_branch:
+            # גם ב-else, אם יש return, נוודא רק את הביטוי
+            else_branch = [exp for exp in else_branch if exp != 'return']
+
         print(f"Parsed else_branch: {else_branch}")
         return ('IF', condition, then_branch, else_branch)
-    
+
      print(f"Returning IF statement without ELSE branch")
      return ('IF', condition, then_branch, None)
 
@@ -173,11 +182,11 @@ class Parser:
         statements = []
         while not self.match('RBRACE'):
             if not self.current_token:  # אם נגמרו הטוקנים לפני סוגר המסולסל
-                raise ParserError("Expected '}' but reached end of input")
+                raise ParserError("Expected '}' but reached end of input")  # שינוי ההודעה כאן
             statements.append(self.parse_expression())
-        return statements  # מחזיר את כל הבלוק כבלוק של פקודות
+        return statements
      else:
-        return self.parse_expression()  # מחזיר ביטוי יחיד אם אין בלוק
+        return self.parse_expression()
 
 
     def parse_function_def(self):
@@ -272,7 +281,7 @@ class Parser:
         self.advance()  # Advance past '('
         expr = self.parse_expression()
         if not self.match('RPAREN'):
-            raise ParserError("Expected ')'")
+            raise ParserError("Expected ')' after expression")
         return expr
 
     def parse_assignment(self):
@@ -293,23 +302,33 @@ class Parser:
         if self.current_token and self.current_token.type == token_type:
             self.advance()
             return True
+        elif not self.current_token:
+            raise ParserError(f"Unexpected end of input, expected '{token_type}'")
         return False
 
     def parse_lambda(self):
-        self.advance()  # Advance past 'Lambda'
-        if not self.match('LPAREN'):
-            raise ParserError("Expected '(' after 'Lambda'")
-        
-        params = []
-        while self.current_token and self.current_token.type != 'RPAREN':
-            params.append(self.current_token.value)
+     self.advance()  # Advance past 'Lambda'
+    
+     if not self.match('LPAREN'):
+        raise ParserError("Expected '(' after 'Lambda'")
+    
+     params = []
+     while self.current_token and self.current_token.type != 'RPAREN':
+        params.append(self.current_token.value)
+        self.advance()
+        if self.current_token.type == 'COMMA':
             self.advance()
-            if self.current_token.type == 'COMMA':
-                self.advance()
-        
-        if not self.match('RPAREN'):
-            raise ParserError("Expected ')' after parameters")
-        
-        body = self.parse_expression()
-        
-        return ('LAMBDA', params, body)
+    
+     if not self.match('RPAREN'):
+        raise ParserError("Expected ')' after parameters")
+    
+     body = self.parse_expression()
+    
+     # Handle possible nested lambdas
+     if self.current_token and self.current_token.type == 'LAMBDA':
+        nested_lambda = self.parse_lambda()  # Parse nested lambda
+        return ('LAMBDA', params, nested_lambda)
+    
+     return ('LAMBDA', params, body)
+
+
