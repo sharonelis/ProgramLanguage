@@ -46,7 +46,7 @@ class Interpreter:
      if isinstance(statement, tuple):
         if statement[0] == 'NEGATE':
             return -self.execute_statement(statement[1])
-        if statement[0] == 'IF':
+        elif statement[0] == 'IF':
             return self.execute_if_statement(statement)
         elif statement[0] in ('PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE'):
             return self.execute_arith_expr(statement)
@@ -60,6 +60,8 @@ class Interpreter:
             return self.execute_function_call(statement)
         elif statement[0] == 'LAMBDA':
             return self.execute_lambda(statement)
+        elif statement[0] == 'RETURN':  # הוספת טיפול בפקודת return
+            return self.execute_statement(statement[1])
         elif statement[0] in ('AND', 'OR'):
             return self.execute_boolean_expr(statement)
         else:
@@ -76,6 +78,7 @@ class Interpreter:
 
      else:
         return statement
+
 
     def execute_block(self, block):
      """Execute a block of statements."""
@@ -217,18 +220,30 @@ class Interpreter:
         return result
 
     def execute_lambda(self, statement):
-        params = statement[1]
-        body = statement[2]
+     params = statement[1]
+     body = statement[2]
 
-        def lambda_func(*args):
-            prev_vars = self.variables.copy()
+     def lambda_func(*args):
+        prev_vars = self.variables.copy()
 
-            for param, arg in zip(params, args):
-                self.variables[param] = arg
+        # מיפוי הפרמטרים לערכים שנשלחו
+        for param, arg in zip(params, args):
+            self.variables[param] = arg
 
-            result = self.execute_statement(body)
+        # ביצוע גוף הלמבדה
+        result = self.execute_statement(body)
 
-            self.variables = prev_vars
-            return result
+        # בדיקה אם יש החזרת ערך מפורשת כמו 'return'
+        if isinstance(result, tuple) and result[0] == 'return':
+            result = result[1]
 
-        return lambda_func
+        # בדיקה אם התוצאה היא למבדה נוספת (למבדה מקוננת)
+        if isinstance(result, tuple) and result[0] == 'LAMBDA':
+            result = self.execute_lambda(result)
+
+        # שחזור המשתנים הקודמים
+        self.variables = prev_vars
+        return result
+
+     return lambda_func
+
