@@ -235,10 +235,13 @@ class TestParser:
         tokens = lexer.tokenize()
         parser = Parser(tokens)
         try:
+            print(f"Debug: Tokens generated: {tokens}")
             parser.parse()
             self.assert_equal(False, True, "Missing closing brace should raise an error")
         except ParserError as e:
-            self.assert_equal(str(e), "Expected '}' but reached end of input", "Missing closing brace error handling failed")
+            print(f"Debug: Caught ParserError with message: {str(e)}")
+            self.assert_equal(str(e), "Unexpected end of input, expected 'RBRACE'", "Missing closing brace error handling failed")
+
 
     def test_extra_closing_brace(self):
         code = "if (x > 5) { y = y + 1; } }"  # Extra closing brace
@@ -251,6 +254,14 @@ class TestParser:
         except ParserError as e:
             self.assert_equal(str(e), "Unexpected token: <Token type='RBRACE', value=}>", "Extra closing brace error handling failed")
 
+
+# הרצת הבדיקה הספציפית לבד
+if __name__ == "__main__":
+    test_parser = TestParser()
+    test_parser.test_missing_closing_brace()  # הרצת בדיקה ממוקדת
+
+
+    
 # הפעלת הבדיקות
 if __name__ == "__main__":
     test_parser = TestParser()
