@@ -104,13 +104,23 @@ class TestInterpreter:
         self.assert_equal(self.interpreter.variables['y'], 12, "Arithmetic multiplication failed")
 
     def test_if_statements(self):
-        ast = [('ASSIGN', 'x', 10), ('IF', ('GREATER', 'x', 5), ('ASSIGN', 'y', 20), ('ASSIGN', 'y', 0))]
-        self.interpreter.interpret(ast)
-        self.assert_equal(self.interpreter.variables['y'], 20, "If statement (true branch) failed")
+     self.interpreter.variables = {}
+     ast = [('ASSIGN', 'x', 10), ('IF', ('GREATER', 'x', 5), ('ASSIGN', 'y', 20), ('ASSIGN', 'y', 0))]
+     self.interpreter.interpret(ast)
+     print(f"Variables after true branch execution: {self.interpreter.variables}")
+     self.assert_equal(self.interpreter.variables.get('y'), 20, "If statement (true branch) failed")
 
-        ast = [('ASSIGN', 'x', 3), ('IF', ('GREATER', 'x', 5), ('ASSIGN', 'y', 20), ('ASSIGN', 'y', 0))]
-        self.interpreter.interpret(ast)
-        self.assert_equal(self.interpreter.variables['y'], 0, "If statement (false branch) failed")
+     ast = [('ASSIGN', 'x', 3), ('IF', ('GREATER', 'x', 5), ('ASSIGN', 'y', 20), ('ASSIGN', 'y', 0))]
+     self.interpreter.interpret(ast)
+     print(f"Variables after false branch execution: {self.interpreter.variables}")
+     self.assert_equal(self.interpreter.variables.get('y'), 0, "If statement (false branch) failed")
+
+
+     ast = [('ASSIGN', 'x', 3), ('IF', ('GREATER', 'x', 5), ('ASSIGN', 'y', 20), ('ASSIGN', 'y', 0))]
+     self.interpreter.interpret(ast)
+     print(f"Variables after else block: {self.interpreter.variables}")
+     self.assert_equal(self.interpreter.variables['y'], 0, "If statement (false branch) failed")
+
 
     def test_function_def_and_call(self):
         self.interpreter.variables = {}
