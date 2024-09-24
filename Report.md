@@ -38,15 +38,12 @@ This project report provides an overview of the design, challenges, and solution
 
 ## Challenges Faced
 
-### 1. Handling Recursive Function Calls
-   - **Challenge**: Implementing recursive function calls without causing stack overflow or incorrect results.
-   - **Solution**: The interpreter uses a call stack to manage recursion, ensuring that variables and environments are handled correctly.
 
-### 2. Parsing and Evaluating Lambda Expressions
+### 1. Parsing and Evaluating Lambda Expressions
    - **Challenge**: Lambda expressions needed to be parsed and evaluated correctly, especially when used as higher-order functions.
    - **Solution**: The parser and interpreter were designed to handle anonymous functions and maintain the correct scope for each lambda expression.
 
-### 3. Efficient Tokenization in the Lexer
+### 2. Efficient Tokenization in the Lexer
    - **Challenge**: The lexer needed to tokenize the input efficiently without missing or misinterpreting characters.
    - **Solution**: A regular expression-based approach was used to identify tokens, ensuring that the lexer works reliably under different conditions.
 
