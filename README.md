@@ -107,5 +107,4 @@ A Test Suite is included to verify the functionality of all core components. You
 ---
 
 ## Conclusion
-Your functional language interpreter allows you to execute functional code easily, build anonymous functions, and run recursive expressions. The REPL provides a convenient tool for real-time development and testing, and the test suite ensures accurate output and reliability.
-
+our functional language interpreter allows us to execute functional code easily, build anonymous functions, and run recursive expressions. The REPL provides a convenient tool for real-time development and testing, and the test suite ensures accurate output and reliability.
