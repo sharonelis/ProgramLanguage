@@ -34,7 +34,7 @@ This project report provides an overview of the design, challenges, and solution
    - Contains test cases for the parser. These tests verify that the AST is correctly generated from the input tokens and that syntax errors are caught and reported appropriately.
 
 9. **TestSuit.py**:
-   - A comprehensive test suite that integrates all the test files (`Test.Lambda`, `TestInterperter.py`, `TestLexer.py`, and `TestParser.py`). It validates the overall performance and correctness of the language interpreter by running various edge cases and scenarios.
+   - A comprehensive test suite that integrates all the  files (`Test.Lambda`, `Interperter.py`, `Lexer.py`, and `Parser.py`). It validates the overall performance and correctness of the language interpreter by running various edge cases and scenarios.
 
 ## Challenges Faced
 
